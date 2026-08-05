@@ -327,6 +327,25 @@ namespace FileLocationChecker.Services
                         result.TargetPath = string.Empty;
                         result.FormattedSizeB = "-";
                     }
+
+                    // 检查 Markdown 文件引用的资源有效性
+                    if (candidatePaths.Count > 0 && options.CheckMdResources)
+                    {
+                        var allMissing = new List<string>();
+                        foreach (var path in candidatePaths)
+                        {
+                            var missing = MdResourceCheckerService.CheckMissingResources(path, options.FolderB);
+                            allMissing.AddRange(missing);
+                        }
+
+                        if (allMissing.Count > 0)
+                        {
+                            var distinctMissing = allMissing.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+                            result.HasMissingResources = true;
+                            result.MissingResourcesText = $"⚠️ Markdown 缺失引用的资源 ({distinctMissing.Count} 个):\n" +
+                                                          string.Join("\n", distinctMissing.Select(m => $"  • {m}"));
+                        }
+                    }
                 }
                 else
                 {

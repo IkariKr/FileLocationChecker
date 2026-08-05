@@ -44,15 +44,16 @@
         <!-- 配置项区域 / Options Area -->
         <GroupBox Header="2. 配置选项 (Match Options)" Grid.Row="1" Margin="0,0,0,10" Padding="10">
             <WrapPanel Orientation="Horizontal">
-                <CheckBox x:Name="ChkRecursiveA" Content="递归检查 A" IsChecked="False" Margin="0,0,25,0" VerticalAlignment="Center" ToolTip="勾选后将递归搜索文件夹 A 的所有子目录"/>
-                <CheckBox x:Name="ChkCheckFileName" Content="检查文件名" IsChecked="True" Margin="0,0,25,0" VerticalAlignment="Center" ToolTip="匹配文件夹 A 与 B 中的文件名是否相同"/>
+                <CheckBox x:Name="ChkRecursiveA" Content="递归检查 A" IsChecked="False" Margin="0,0,20,0" VerticalAlignment="Center" ToolTip="勾选后将递归搜索文件夹 A 的所有子目录"/>
+                <CheckBox x:Name="ChkCheckFileName" Content="检查文件名" IsChecked="True" Margin="0,0,20,0" VerticalAlignment="Center" ToolTip="匹配文件夹 A 与 B 中的文件名是否相同"/>
                 <CheckBox x:Name="ChkCheckFileSize" Content="检查文件大小" IsChecked="True" Margin="0,0,5,0" VerticalAlignment="Center" ToolTip="匹配文件夹 A 与 B 中的文件字节大小"/>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,25,0" IsEnabled="{Binding ElementName=ChkCheckFileSize, Path=IsChecked}">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,20,0" IsEnabled="{Binding ElementName=ChkCheckFileSize, Path=IsChecked}">
                     <TextBlock Text="容差:" VerticalAlignment="Center" Margin="0,0,4,0" Foreground="#555555"/>
-                    <Slider x:Name="SldSizeTolerance" Minimum="0" Maximum="100" Value="0" SmallChange="1" LargeChange="5" Width="85" VerticalAlignment="Center" ValueChanged="SldSizeTolerance_ValueChanged" ToolTip="设定文件大小对比的允许误差百分比 (0%-100%)"/>
+                    <Slider x:Name="SldSizeTolerance" Minimum="0" Maximum="100" Value="0" SmallChange="1" LargeChange="5" Width="75" VerticalAlignment="Center" ValueChanged="SldSizeTolerance_ValueChanged" ToolTip="设定文件大小对比的允许误差百分比 (0%-100%)"/>
                     <TextBlock x:Name="TxtToleranceValue" Text="0%" VerticalAlignment="Center" Margin="4,0,0,0" Width="35" Foreground="#007ACC" FontWeight="Bold"/>
                 </StackPanel>
-                <CheckBox x:Name="ChkExcludeAPath" Content="排除 A 路径" IsChecked="True" Margin="0,0,25,0" VerticalAlignment="Center" ToolTip="当 A 为 B 的子文件夹时，在 B 的扫描结果中自动排除 A 路径及其子目录下的文件自身"/>
+                <CheckBox x:Name="ChkExcludeAPath" Content="排除 A 路径" IsChecked="True" Margin="0,0,20,0" VerticalAlignment="Center" ToolTip="当 A 为 B 的子文件夹时，在 B 的扫描结果中自动排除 A 路径及其子目录下的文件自身"/>
+                <CheckBox x:Name="ChkCheckMdResources" Content="md文件检查资源有效性" IsChecked="True" Margin="0,0,20,0" VerticalAlignment="Center" ToolTip="当在 B 中找到 md 文件时，检查引用的资源是否存在，若缺失则标红显示并提示"/>
             </WrapPanel>
         </GroupBox>
 
@@ -73,7 +74,26 @@
                 <DataGridTextColumn Header="匹配状态" Binding="{Binding StatusDisplay}" Width="100"/>
                 <DataGridTextColumn Header="A 大小" Binding="{Binding FormattedSizeA}" Width="85"/>
                 <DataGridTextColumn Header="B 大小" Binding="{Binding FormattedSizeB}" Width="85"/>
-                <DataGridTextColumn Header="文件夹 B 中定位位置 (TargetPath)" Binding="{Binding TargetPath}" Width="*"/>
+                <DataGridTemplateColumn Header="文件夹 B 中定位位置 (TargetPath)" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding TargetPath}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="4,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="ToolTip" Value="{Binding TargetPath}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasMissingResources}" Value="True">
+                                                <Setter Property="Foreground" Value="#E53935"/>
+                                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                                <Setter Property="ToolTip" Value="{Binding MissingResourcesText}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="文件夹 A 完整路径 (SourcePath)" Binding="{Binding SourcePath}" Width="250"/>
             </DataGrid.Columns>
             <DataGrid.ContextMenu>

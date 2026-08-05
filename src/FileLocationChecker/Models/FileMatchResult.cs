@@ -137,6 +137,18 @@ namespace FileLocationChecker.Models
         /// Note or error message
         /// </summary>
         public string Message { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 是否包含缺失引用的资源
+        /// Whether there are missing referenced resources
+        /// </summary>
+        public bool HasMissingResources { get; set; }
+
+        /// <summary>
+        /// 缺失资源的提示文本信息 (用于 ToolTip)
+        /// ToolTip message text for missing resources
+        /// </summary>
+        public string MissingResourcesText { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -186,5 +198,11 @@ namespace FileLocationChecker.Models
         /// Whether to exclude Folder A's own path when A is a subfolder of B (Default: true)
         /// </summary>
         public bool ExcludeAPath { get; set; } = true;
+
+        /// <summary>
+        /// 是否检查 Markdown 文件引用的资源有效性 (默认 true)
+        /// Whether to check validity of resources referenced in Markdown files (Default: true)
+        /// </summary>
+        public bool CheckMdResources { get; set; } = true;
     }
 }
