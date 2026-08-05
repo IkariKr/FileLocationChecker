@@ -262,15 +262,29 @@ namespace FileLocationChecker.Services
                 result.FileSizeA = fileInfoA.Length;
                 result.FormattedSizeA = FormatBytes(fileInfoA.Length);
 
-                // 检查文件夹 A 中 Markdown 文件引用的资源有效性
-                if (options.CheckMdResources && File.Exists(fileAPath))
+                // 检查文件夹 A 中 Markdown 文件引用的资源有效性与外链
+                if (File.Exists(fileAPath))
                 {
-                    var missingA = MdResourceCheckerService.CheckMissingResources(fileAPath, options.FolderA);
-                    if (missingA.Count > 0)
+                    if (options.CheckMdResources)
                     {
-                        result.HasMissingResourcesA = true;
-                        result.MissingResourcesTextA = $"⚠️ 文件夹 A 中的 Markdown 缺失引用的资源 ({missingA.Count} 个):\n" +
-                                                      string.Join("\n", missingA.Select(m => $"  • {m}"));
+                        var missingA = MdResourceCheckerService.CheckMissingResources(fileAPath, options.FolderA);
+                        if (missingA.Count > 0)
+                        {
+                            result.HasMissingResourcesA = true;
+                            result.MissingResourcesTextA = $"⚠️ 文件夹 A 中的 Markdown 缺失引用的资源 ({missingA.Count} 个):\n" +
+                                                          string.Join("\n", missingA.Select(m => $"  • {m}"));
+                        }
+                    }
+
+                    if (options.CheckMdExternalLinks)
+                    {
+                        var extLinksA = MdResourceCheckerService.CheckExternalLinks(fileAPath);
+                        if (extLinksA.Count > 0)
+                        {
+                            result.HasExternalLinksA = true;
+                            result.ExternalLinksTextA = $"🌐 文件夹 A 中的 Markdown 包含网络外链 ({extLinksA.Count} 个):\n" +
+                                                       string.Join("\n", extLinksA.Select(l => $"  • {l}"));
+                        }
                     }
                 }
 
@@ -340,22 +354,43 @@ namespace FileLocationChecker.Services
                         result.FormattedSizeB = "-";
                     }
 
-                    // 检查文件夹 B 中 Markdown 文件引用的资源有效性
-                    if (candidatePaths.Count > 0 && options.CheckMdResources)
+                    // 检查文件夹 B 中 Markdown 文件引用的资源有效性与外链
+                    if (candidatePaths.Count > 0)
                     {
-                        var allMissingB = new List<string>();
-                        foreach (var path in candidatePaths)
+                        if (options.CheckMdResources)
                         {
-                            var missing = MdResourceCheckerService.CheckMissingResources(path, options.FolderB);
-                            allMissingB.AddRange(missing);
+                            var allMissingB = new List<string>();
+                            foreach (var path in candidatePaths)
+                            {
+                                var missing = MdResourceCheckerService.CheckMissingResources(path, options.FolderB);
+                                allMissingB.AddRange(missing);
+                            }
+
+                            if (allMissingB.Count > 0)
+                            {
+                                var distinctMissing = allMissingB.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+                                result.HasMissingResourcesB = true;
+                                result.MissingResourcesTextB = $"⚠️ 文件夹 B 中的 Markdown 缺失引用的资源 ({distinctMissing.Count} 个):\n" +
+                                                              string.Join("\n", distinctMissing.Select(m => $"  • {m}"));
+                            }
                         }
 
-                        if (allMissingB.Count > 0)
+                        if (options.CheckMdExternalLinks)
                         {
-                            var distinctMissing = allMissingB.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-                            result.HasMissingResourcesB = true;
-                            result.MissingResourcesTextB = $"⚠️ 文件夹 B 中的 Markdown 缺失引用的资源 ({distinctMissing.Count} 个):\n" +
-                                                          string.Join("\n", distinctMissing.Select(m => $"  • {m}"));
+                            var allExtLinksB = new List<string>();
+                            foreach (var path in candidatePaths)
+                            {
+                                var extLinks = MdResourceCheckerService.CheckExternalLinks(path);
+                                allExtLinksB.AddRange(extLinks);
+                            }
+
+                            if (allExtLinksB.Count > 0)
+                            {
+                                var distinctExt = allExtLinksB.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+                                result.HasExternalLinksB = true;
+                                result.ExternalLinksTextB = $"🌐 文件夹 B 中的 Markdown 包含网络外链 ({distinctExt.Count} 个):\n" +
+                                                           string.Join("\n", distinctExt.Select(l => $"  • {l}"));
+                            }
                         }
                     }
                 }

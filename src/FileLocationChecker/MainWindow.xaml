@@ -53,7 +53,8 @@
                     <TextBlock x:Name="TxtToleranceValue" Text="0%" VerticalAlignment="Center" Margin="4,0,0,0" Width="35" Foreground="#007ACC" FontWeight="Bold"/>
                 </StackPanel>
                 <CheckBox x:Name="ChkExcludeAPath" Content="排除 A 路径" IsChecked="True" Margin="0,0,20,0" VerticalAlignment="Center" ToolTip="当 A 为 B 的子文件夹时，在 B 的扫描结果中自动排除 A 路径及其子目录下的文件自身"/>
-                <CheckBox x:Name="ChkCheckMdResources" Content="md文件检查资源有效性" IsChecked="True" Margin="0,0,20,0" VerticalAlignment="Center" ToolTip="当在 B 中找到 md 文件时，检查引用的资源是否存在，若缺失则标红显示并提示"/>
+                <CheckBox x:Name="ChkCheckMdResources" Content="md文件检查资源有效性" IsChecked="True" Margin="0,0,20,0" VerticalAlignment="Center" ToolTip="检查 A 与 B 中的 md 文件引用的资源是否存在，若缺失则标红显示并提示"/>
+                <CheckBox x:Name="ChkCheckMdExternalLinks" Content="md文件检查外链" IsChecked="True" Margin="0,0,20,0" VerticalAlignment="Center" ToolTip="检查 A 与 B 中的 md 文件中是否包含 http/https 等网络外链，若包含则标红显示并提示"/>
             </WrapPanel>
         </GroupBox>
 
@@ -82,10 +83,10 @@
                                     <Style TargetType="TextBlock">
                                         <Setter Property="ToolTip" Value="{Binding TargetPath}"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasMissingResourcesB}" Value="True">
+                                            <DataTrigger Binding="{Binding IsFlaggedB}" Value="True">
                                                 <Setter Property="Foreground" Value="#E53935"/>
                                                 <Setter Property="FontWeight" Value="SemiBold"/>
-                                                <Setter Property="ToolTip" Value="{Binding MissingResourcesTextB}"/>
+                                                <Setter Property="ToolTip" Value="{Binding DisplayToolTipB}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -102,10 +103,10 @@
                                     <Style TargetType="TextBlock">
                                         <Setter Property="ToolTip" Value="{Binding SourcePath}"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasMissingResourcesA}" Value="True">
+                                            <DataTrigger Binding="{Binding IsFlaggedA}" Value="True">
                                                 <Setter Property="Foreground" Value="#E53935"/>
                                                 <Setter Property="FontWeight" Value="SemiBold"/>
-                                                <Setter Property="ToolTip" Value="{Binding MissingResourcesTextA}"/>
+                                                <Setter Property="ToolTip" Value="{Binding DisplayToolTipA}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>

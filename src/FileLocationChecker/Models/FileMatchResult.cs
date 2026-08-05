@@ -163,6 +163,78 @@ namespace FileLocationChecker.Models
         public string MissingResourcesTextB { get; set; } = string.Empty;
 
         /// <summary>
+        /// 源文件 A 是否包含外链
+        /// Whether File A contains external links
+        /// </summary>
+        public bool HasExternalLinksA { get; set; }
+
+        /// <summary>
+        /// 源文件 A 外链提示文本 (用于 ToolTip)
+        /// ToolTip text for external links in File A
+        /// </summary>
+        public string ExternalLinksTextA { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 目标文件 B 是否包含外链
+        /// Whether File B contains external links
+        /// </summary>
+        public bool HasExternalLinksB { get; set; }
+
+        /// <summary>
+        /// 目标文件 B 外链提示文本 (用于 ToolTip)
+        /// ToolTip text for external links in File B
+        /// </summary>
+        public string ExternalLinksTextB { get; set; } = string.Empty;
+
+        /// <summary>
+        /// A 路径是否触发警告高亮 (包含缺失资源或存在外链)
+        /// Whether path A is flagged for warning (missing resources or external links)
+        /// </summary>
+        public bool IsFlaggedA => HasMissingResourcesA || HasExternalLinksA;
+
+        /// <summary>
+        /// A 路径 ToolTip 显示组合文本
+        /// Combined ToolTip text for path A
+        /// </summary>
+        public string DisplayToolTipA
+        {
+            get
+            {
+                var list = new System.Collections.Generic.List<string>();
+                if (HasMissingResourcesA && !string.IsNullOrEmpty(MissingResourcesTextA))
+                    list.Add(MissingResourcesTextA);
+                if (HasExternalLinksA && !string.IsNullOrEmpty(ExternalLinksTextA))
+                    list.Add(ExternalLinksTextA);
+
+                return list.Count > 0 ? string.Join("\n\n", list) : SourcePath;
+            }
+        }
+
+        /// <summary>
+        /// B 路径是否触发警告高亮 (包含缺失资源或存在外链)
+        /// Whether path B is flagged for warning (missing resources or external links)
+        /// </summary>
+        public bool IsFlaggedB => HasMissingResourcesB || HasExternalLinksB;
+
+        /// <summary>
+        /// B 路径 ToolTip 显示组合文本
+        /// Combined ToolTip text for path B
+        /// </summary>
+        public string DisplayToolTipB
+        {
+            get
+            {
+                var list = new System.Collections.Generic.List<string>();
+                if (HasMissingResourcesB && !string.IsNullOrEmpty(MissingResourcesTextB))
+                    list.Add(MissingResourcesTextB);
+                if (HasExternalLinksB && !string.IsNullOrEmpty(ExternalLinksTextB))
+                    list.Add(ExternalLinksTextB);
+
+                return list.Count > 0 ? string.Join("\n\n", list) : TargetPath;
+            }
+        }
+
+        /// <summary>
         /// 兼容旧属性：是否有缺失资源
         /// Legacy property alias
         /// </summary>
@@ -236,5 +308,11 @@ namespace FileLocationChecker.Models
         /// Whether to check validity of resources referenced in Markdown files (Default: true)
         /// </summary>
         public bool CheckMdResources { get; set; } = true;
+
+        /// <summary>
+        /// 是否检查 Markdown 文件中是否存在网络外链 (默认 true)
+        /// Whether to check if Markdown files contain external links (Default: true)
+        /// </summary>
+        public bool CheckMdExternalLinks { get; set; } = true;
     }
 }

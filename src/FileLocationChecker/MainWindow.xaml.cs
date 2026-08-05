@@ -136,7 +136,8 @@ namespace FileLocationChecker
                 CheckFileSize = checkSize,
                 SizeTolerancePercent = SldSizeTolerance.Value,
                 ExcludeAPath = ChkExcludeAPath.IsChecked == true,
-                CheckMdResources = ChkCheckMdResources.IsChecked == true
+                CheckMdResources = ChkCheckMdResources.IsChecked == true,
+                CheckMdExternalLinks = ChkCheckMdExternalLinks.IsChecked == true
             };
 
             _cts = new CancellationTokenSource();

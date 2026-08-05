@@ -62,5 +62,29 @@ namespace FileLocationChecker.Tests
             Assert.Contains(missing, m => m.Contains("missing_doc.pdf"));
             Assert.DoesNotContain(missing, m => m.Contains("real_photo.png"));
         }
+
+        [Fact]
+        public void CheckExternalLinks_ShouldDetectWebUrls()
+        {
+            // Arrange
+            string mdPath = Path.Combine(_tempPath, "web.md");
+            string mdContent = @"
+# External Links MD
+
+![Local](attachments/pic.png)
+[Yuque](https://www.yuque.com/attachments/123.mp4)
+<img src=""http://example.com/image.png"">
+";
+            File.WriteAllText(mdPath, mdContent);
+
+            // Act
+            var extLinks = MdResourceCheckerService.CheckExternalLinks(mdPath);
+
+            // Assert
+            Assert.Equal(2, extLinks.Count);
+            Assert.Contains(extLinks, l => l == "https://www.yuque.com/attachments/123.mp4");
+            Assert.Contains(extLinks, l => l == "http://example.com/image.png");
+            Assert.DoesNotContain(extLinks, l => l.Contains("attachments/pic.png"));
+        }
     }
 }

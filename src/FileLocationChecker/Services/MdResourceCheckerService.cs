@@ -83,6 +83,61 @@ namespace FileLocationChecker.Services
             return missingList.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         }
 
+        /// <summary>
+        /// 检索 Markdown 文件中引用的所有网络远程外链 (http/https/ftp)
+        /// Search for all external remote links (http/https/ftp) in a Markdown file
+        /// </summary>
+        /// <param name="mdFilePath">Markdown 文件完整路径 / Full path of Markdown file</param>
+        /// <returns>外链 URL 列表 / List of external link URLs</returns>
+        public static List<string> CheckExternalLinks(string mdFilePath)
+        {
+            var externalList = new List<string>();
+
+            if (string.IsNullOrEmpty(mdFilePath) || !File.Exists(mdFilePath))
+                return externalList;
+
+            string ext = Path.GetExtension(mdFilePath).ToLowerInvariant();
+            if (ext != ".md" && ext != ".markdown")
+                return externalList;
+
+            string content;
+            try
+            {
+                content = File.ReadAllText(mdFilePath);
+            }
+            catch
+            {
+                return externalList;
+            }
+
+            var extractedPaths = ExtractAllResourcePaths(content);
+
+            foreach (var rawPath in extractedPaths)
+            {
+                string cleanPath = CleanResourcePath(rawPath);
+                if (string.IsNullOrEmpty(cleanPath))
+                    continue;
+
+                if (IsExternalWebLink(cleanPath))
+                {
+                    externalList.Add(cleanPath);
+                }
+            }
+
+            return externalList.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        }
+
+        private static bool IsExternalWebLink(string path)
+        {
+            if (path.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                path.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+                path.StartsWith("ftp://", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+            return false;
+        }
+
         private static List<string> ExtractAllResourcePaths(string content)
         {
             var list = new List<string>();
