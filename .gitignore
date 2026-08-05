@@ -3,6 +3,7 @@ bin/
 obj/
 release/
 release-singlefile/
+*.zip
 .vs/
 *.user
 *.userosscache
