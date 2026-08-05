@@ -1,6 +1,8 @@
 ## Ignore Visual Studio & .NET build output
 bin/
 obj/
+release/
+release-singlefile/
 .vs/
 *.user
 *.userosscache
