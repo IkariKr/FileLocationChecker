@@ -12,14 +12,14 @@ namespace FileLocationChecker.Services
     /// </summary>
     public class MdResourceCheckerService
     {
-        // 匹配标准的 Markdown 图片/链接语法: ![alt](path) 或 [text](path)
+        // 匹配标准的 Markdown 图片/链接语法: ![alt](path) 或 [text](path)（排除前面紧跟 ![[ 或 [[ 的 Wiki 链）
         private static readonly Regex MdLinkRegex = new Regex(
-            @"(?:!\[.*?\]|\[.*?\])\((?<path>[^)]+)\)",
+            @"(?<!\[)(?:!\[[^\]]*\]|\[[^\]]*\])\((?<path>[^)]+)\)",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         // 匹配 Obsidian 双链/嵌入语法: ![[path|alt]] 或 [[path|alt]]
         private static readonly Regex WikiLinkRegex = new Regex(
-            @"(?:!\[\[|\[\[)(?<path>[^|\]]+)(?:\|[^\]]+)?\]\]",
+            @"(?:!\[\[|\[\[)(?<path>[^|\]]+?)(?:\|[^\]]+?)?\]\]",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         // 匹配 HTML <img> 标签的 src 属性
@@ -170,14 +170,11 @@ namespace FileLocationChecker.Services
 
             string result = path.Trim();
 
-            // 清理可能误匹配外层的方括号 [[ 或 ]]
-            result = result.TrimStart('[').TrimEnd(']');
-
-            // 若 Markdown 语法带有 title: [text](path "title")
-            int spaceIndex = result.IndexOf(' ');
-            if (spaceIndex > 0)
+            // 若 Markdown 包含带有引号的 title: [text](path "title")
+            int quoteIndex = result.IndexOfAny(new[] { '"', '\'' });
+            if (quoteIndex > 0)
             {
-                result = result.Substring(0, spaceIndex);
+                result = result.Substring(0, quoteIndex).Trim();
             }
 
             // 去除 URL 锚点和 query 参数 (# / ?)
@@ -216,7 +213,7 @@ namespace FileLocationChecker.Services
             return false;
         }
 
-        private static bool IsResourceFileExists(string relativePath, string mdDir, string? folderB)
+        private static bool IsResourceFileExists(string relativePath, string mdDir, string? baseFolder)
         {
             try
             {
@@ -226,13 +223,46 @@ namespace FileLocationChecker.Services
                 if (File.Exists(fullPath1) || Directory.Exists(fullPath1))
                     return true;
 
-                // 2. 校验相对于目标根目录 B 的路径（适用于 Vault 根目录引用）
-                // 2. Check relative to Folder B root
-                if (!string.IsNullOrEmpty(folderB))
+                // 2. 校验相对于基准根目录 (Folder A 或 Folder B) 的路径
+                // 2. Check relative to base folder (Folder A or Folder B)
+                if (!string.IsNullOrEmpty(baseFolder) && Directory.Exists(baseFolder))
                 {
-                    string fullPath2 = Path.GetFullPath(Path.Combine(folderB, relativePath));
+                    string fullPath2 = Path.GetFullPath(Path.Combine(baseFolder, relativePath));
                     if (File.Exists(fullPath2) || Directory.Exists(fullPath2))
                         return true;
+                }
+
+                // 3. 智能向上回退搜寻父目录中的相对资源文件（支持剥离当前目录重叠前缀）
+                // 3. Smart fallback searching parent directories (supports stripping overlapping dir prefixes)
+                string normalizedRel = relativePath.Replace('\\', '/').TrimStart('/');
+                var currDirInfo = new DirectoryInfo(mdDir);
+
+                while (currDirInfo != null)
+                {
+                    string parentPath = currDirInfo.FullName;
+
+                    // A) 直接拼接 parentPath + relativePath
+                    string testPath1 = Path.GetFullPath(Path.Combine(parentPath, normalizedRel));
+                    if (File.Exists(testPath1) || Directory.Exists(testPath1))
+                        return true;
+
+                    // B) 尝试按斜杠拆分相对路径，匹配当前 parentPath 下是否存在后半部分子路径
+                    string[] relSegments = normalizedRel.Split('/');
+                    for (int s = 1; s < relSegments.Length; s++)
+                    {
+                        string partialRel = string.Join("/", relSegments, s, relSegments.Length - s);
+                        string testPath2 = Path.GetFullPath(Path.Combine(parentPath, partialRel));
+                        if (File.Exists(testPath2) || Directory.Exists(testPath2))
+                            return true;
+                    }
+
+                    // 若已到达驱动器根目录 (如 H:\)，终止循环
+                    if (currDirInfo.Parent == null || string.Equals(currDirInfo.FullName, currDirInfo.Root.FullName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        break;
+                    }
+
+                    currDirInfo = currDirInfo.Parent;
                 }
             }
             catch { }

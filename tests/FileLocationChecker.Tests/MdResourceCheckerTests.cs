@@ -48,7 +48,7 @@ namespace FileLocationChecker.Tests
 
 ![Real](attachments/real_photo.png)
 ![Missing](attachments/missing_file.png)
-![WikiMissing]([[missing_doc.pdf]])
+![WikiMissing](missing_doc.pdf)
 [Web Link](https://www.yuque.com/attachments/123.mp4)
 ";
             File.WriteAllText(mdPath, mdContent);
@@ -61,6 +61,30 @@ namespace FileLocationChecker.Tests
             Assert.Contains(missing, m => m.Contains("missing_file.png"));
             Assert.Contains(missing, m => m.Contains("missing_doc.pdf"));
             Assert.DoesNotContain(missing, m => m.Contains("real_photo.png"));
+        }
+
+        [Fact]
+        public void CheckMissingResources_ShouldFindResourceWithOverlappingDirectoryPrefix()
+        {
+            // 测试重叠前缀目录（如 2018.1.1.md 的场景）
+            // Test overlapping directory prefix (e.g. 2018.1.1.md scenario)
+            string root = Path.Combine(_tempPath, "VaultRoot");
+            string subDir = Path.Combine(root, "02 Daily", "2018");
+            string attachDir = Path.Combine(subDir, "attachments");
+            Directory.CreateDirectory(attachDir);
+
+            string realFile = Path.Combine(attachDir, "pic001.png");
+            File.WriteAllText(realFile, "image data");
+
+            // md 文件在 subDir 中，引用的相对路径包含了从 Vault 根目录算起的全路径 "02 Daily/2018/attachments/pic001.png"
+            string mdFile = Path.Combine(subDir, "2018.1.1.md");
+            File.WriteAllText(mdFile, "![[02 Daily/2018/attachments/pic001.png]]");
+
+            // Act
+            var missing = MdResourceCheckerService.CheckMissingResources(mdFile, root);
+
+            // Assert: 不应该认为缺失！
+            Assert.Empty(missing);
         }
 
         [Fact]
