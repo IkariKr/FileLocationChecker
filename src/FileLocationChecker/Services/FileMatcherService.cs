@@ -259,8 +259,8 @@ namespace FileLocationChecker.Services
             try
             {
                 var fileInfoA = new FileInfo(fileAPath);
-                result.FileSize = fileInfoA.Length;
-                result.FormattedSize = FormatBytes(fileInfoA.Length);
+                result.FileSizeA = fileInfoA.Length;
+                result.FormattedSizeA = FormatBytes(fileInfoA.Length);
 
                 string searchKey = GenerateIndexKey(fileAPath, options);
 
@@ -302,21 +302,37 @@ namespace FileLocationChecker.Services
                     if (candidatePaths.Count == 1)
                     {
                         result.Status = MatchStatus.Found;
+                        try
+                        {
+                            var infoB = new FileInfo(candidatePaths[0]);
+                            result.FileSizeB = infoB.Length;
+                            result.FormattedSizeB = FormatBytes(infoB.Length);
+                        }
+                        catch { }
                     }
                     else if (candidatePaths.Count > 1)
                     {
                         result.Status = MatchStatus.MultipleMatches;
+                        try
+                        {
+                            var infoB = new FileInfo(candidatePaths[0]);
+                            result.FileSizeB = infoB.Length;
+                            result.FormattedSizeB = FormatBytes(infoB.Length);
+                        }
+                        catch { }
                     }
                     else
                     {
                         result.Status = MatchStatus.NotFound;
                         result.TargetPath = string.Empty;
+                        result.FormattedSizeB = "-";
                     }
                 }
                 else
                 {
                     result.Status = MatchStatus.NotFound;
                     result.TargetPath = string.Empty;
+                    result.FormattedSizeB = "-";
                 }
             }
             catch (Exception ex)

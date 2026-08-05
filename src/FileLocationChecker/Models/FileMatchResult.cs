@@ -89,16 +89,48 @@ namespace FileLocationChecker.Models
         };
 
         /// <summary>
-        /// 源文件大小 (字节)
-        /// Source file size in bytes
+        /// 源文件 A 大小 (字节)
+        /// Source file A size in bytes
         /// </summary>
-        public long FileSize { get; set; }
+        public long FileSizeA { get; set; }
 
         /// <summary>
-        /// 可读的文件大小格式
-        /// Formatted readable file size
+        /// 源文件 A 可读的大小格式
+        /// Formatted readable file size A
         /// </summary>
-        public string FormattedSize { get; set; } = string.Empty;
+        public string FormattedSizeA { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 目标文件 B 大小 (字节)
+        /// Target file B size in bytes
+        /// </summary>
+        public long FileSizeB { get; set; }
+
+        /// <summary>
+        /// 目标文件 B 可读的大小格式
+        /// Formatted readable file size B
+        /// </summary>
+        public string FormattedSizeB { get; set; } = "-";
+
+        /// <summary>
+        /// 兼容旧属性：源文件 A 大小
+        /// Legacy property alias for FileSizeA
+        /// </summary>
+        public long FileSize
+        {
+            get => FileSizeA;
+            set => FileSizeA = value;
+        }
+
+        /// <summary>
+        /// 兼容旧属性：源文件 A 格式化大小
+        /// Legacy property alias for FormattedSizeA
+        /// </summary>
+        public string FormattedSize
+        {
+            get => FormattedSizeA;
+            set => FormattedSizeA = value;
+        }
 
         /// <summary>
         /// 备注/错误消息

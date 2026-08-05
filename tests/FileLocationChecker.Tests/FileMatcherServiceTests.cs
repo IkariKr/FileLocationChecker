@@ -69,6 +69,8 @@ namespace FileLocationChecker.Tests
             Assert.Single(results);
             Assert.Equal(MatchStatus.Found, results[0].Status);
             Assert.Equal(fileB, results[0].TargetPath);
+            Assert.Equal("11 B", results[0].FormattedSizeA);
+            Assert.Equal("11 B", results[0].FormattedSizeB);
         }
 
         [Fact]

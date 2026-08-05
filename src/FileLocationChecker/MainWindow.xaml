@@ -71,7 +71,8 @@
                 <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="45"/>
                 <DataGridTextColumn Header="文件名" Binding="{Binding FileName}" Width="160"/>
                 <DataGridTextColumn Header="匹配状态" Binding="{Binding StatusDisplay}" Width="100"/>
-                <DataGridTextColumn Header="文件大小" Binding="{Binding FormattedSize}" Width="90"/>
+                <DataGridTextColumn Header="A 大小" Binding="{Binding FormattedSizeA}" Width="85"/>
+                <DataGridTextColumn Header="B 大小" Binding="{Binding FormattedSizeB}" Width="85"/>
                 <DataGridTextColumn Header="文件夹 B 中定位位置 (TargetPath)" Binding="{Binding TargetPath}" Width="*"/>
                 <DataGridTextColumn Header="文件夹 A 完整路径 (SourcePath)" Binding="{Binding SourcePath}" Width="250"/>
             </DataGrid.Columns>
