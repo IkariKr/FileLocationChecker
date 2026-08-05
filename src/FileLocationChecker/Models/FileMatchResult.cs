@@ -144,6 +144,12 @@ namespace FileLocationChecker.Models
         public bool CheckFileSize { get; set; } = true;
 
         /// <summary>
+        /// 文件大小对比的容差百分比 (0-100，默认 0)
+        /// Size comparison tolerance percentage (0-100, Default: 0)
+        /// </summary>
+        public double SizeTolerancePercent { get; set; } = 0;
+
+        /// <summary>
         /// 是否排除文件夹 A 自身的路径 (当 A 为 B 的子文件夹时，默认 true)
         /// Whether to exclude Folder A's own path when A is a subfolder of B (Default: true)
         /// </summary>

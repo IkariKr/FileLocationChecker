@@ -219,16 +219,24 @@ namespace FileLocationChecker.Services
         /// </summary>
         private string GenerateIndexKey(string filePath, MatchOptions options)
         {
-            string fileName = options.CheckFileName ? Path.GetFileName(filePath).ToLowerInvariant() : "*";
-            string sizeStr = "*";
-
-            if (options.CheckFileSize)
+            if (options.CheckFileName)
             {
-                var fileInfo = new FileInfo(filePath);
-                sizeStr = fileInfo.Length.ToString();
+                // 若检查文件名，直接以小写文件名作为主索引 Key
+                // If checking file name, use lowercase file name as primary index key
+                return Path.GetFileName(filePath).ToLowerInvariant();
             }
 
-            return $"{fileName}|{sizeStr}";
+            if (options.CheckFileSize && options.SizeTolerancePercent <= 0)
+            {
+                // 若仅检查精确文件大小，以字节数作为 Key
+                // If only checking exact file size, use byte count as key
+                var fileInfo = new FileInfo(filePath);
+                return fileInfo.Length.ToString();
+            }
+
+            // 其他情况索引到通配 Key
+            // Fallback to wildcard key
+            return "*";
         }
 
         /// <summary>
@@ -258,12 +266,34 @@ namespace FileLocationChecker.Services
 
                 if (indexB.TryGetValue(searchKey, out var matchedPaths) && matchedPaths.Count > 0)
                 {
-                    List<string> candidatePaths = matchedPaths;
-                    if (options.ExcludeAPath)
+                    List<string> candidatePaths = new List<string>();
+
+                    foreach (var path in matchedPaths)
                     {
-                        candidatePaths = matchedPaths
-                            .Where(path => !IsSameOrSubPath(path, options.FolderA))
-                            .ToList();
+                        // 1. 文件大小与容差匹配校验
+                        if (options.CheckFileSize)
+                        {
+                            try
+                            {
+                                var fileInfoB = new FileInfo(path);
+                                if (!IsSizeWithinTolerance(fileInfoA.Length, fileInfoB.Length, options.SizeTolerancePercent))
+                                {
+                                    continue;
+                                }
+                            }
+                            catch
+                            {
+                                continue;
+                            }
+                        }
+
+                        // 2. 排除 A 自身路径校验
+                        if (options.ExcludeAPath && IsSameOrSubPath(path, options.FolderA))
+                        {
+                            continue;
+                        }
+
+                        candidatePaths.Add(path);
                     }
 
                     result.MatchCount = candidatePaths.Count;
@@ -296,6 +326,29 @@ namespace FileLocationChecker.Services
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// 判断文件字节大小是否在容差百分比范围内
+        /// Check if file byte size is within specified tolerance percentage
+        /// </summary>
+        public static bool IsSizeWithinTolerance(long sizeA, long sizeB, double tolerancePercent)
+        {
+            if (tolerancePercent <= 0)
+            {
+                return sizeA == sizeB;
+            }
+
+            if (sizeA == sizeB)
+                return true;
+
+            long max = Math.Max(sizeA, sizeB);
+            if (max == 0)
+                return true;
+
+            double diff = Math.Abs(sizeA - sizeB);
+            double ratio = (diff / (double)max) * 100.0;
+            return ratio <= tolerancePercent;
         }
 
         /// <summary>

@@ -44,10 +44,15 @@
         <!-- 配置项区域 / Options Area -->
         <GroupBox Header="2. 配置选项 (Match Options)" Grid.Row="1" Margin="0,0,0,10" Padding="10">
             <WrapPanel Orientation="Horizontal">
-                <CheckBox x:Name="ChkRecursiveA" Content="递归检查 A" IsChecked="False" Margin="0,0,30,0" VerticalAlignment="Center" ToolTip="勾选后将递归搜索文件夹 A 的所有子目录"/>
-                <CheckBox x:Name="ChkCheckFileName" Content="检查文件名" IsChecked="True" Margin="0,0,30,0" VerticalAlignment="Center" ToolTip="匹配文件夹 A 与 B 中的文件名是否相同"/>
-                <CheckBox x:Name="ChkCheckFileSize" Content="检查文件大小" IsChecked="True" Margin="0,0,30,0" VerticalAlignment="Center" ToolTip="匹配文件夹 A 与 B 中的文件字节大小是否完全一致"/>
-                <CheckBox x:Name="ChkExcludeAPath" Content="排除 A 路径" IsChecked="True" Margin="0,0,30,0" VerticalAlignment="Center" ToolTip="当 A 为 B 的子文件夹时，在 B 的扫描结果中自动排除 A 路径及其子目录下的文件自身"/>
+                <CheckBox x:Name="ChkRecursiveA" Content="递归检查 A" IsChecked="False" Margin="0,0,25,0" VerticalAlignment="Center" ToolTip="勾选后将递归搜索文件夹 A 的所有子目录"/>
+                <CheckBox x:Name="ChkCheckFileName" Content="检查文件名" IsChecked="True" Margin="0,0,25,0" VerticalAlignment="Center" ToolTip="匹配文件夹 A 与 B 中的文件名是否相同"/>
+                <CheckBox x:Name="ChkCheckFileSize" Content="检查文件大小" IsChecked="True" Margin="0,0,5,0" VerticalAlignment="Center" ToolTip="匹配文件夹 A 与 B 中的文件字节大小"/>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,25,0" IsEnabled="{Binding ElementName=ChkCheckFileSize, Path=IsChecked}">
+                    <TextBlock Text="容差:" VerticalAlignment="Center" Margin="0,0,4,0" Foreground="#555555"/>
+                    <Slider x:Name="SldSizeTolerance" Minimum="0" Maximum="100" Value="0" SmallChange="1" LargeChange="5" Width="85" VerticalAlignment="Center" ValueChanged="SldSizeTolerance_ValueChanged" ToolTip="设定文件大小对比的允许误差百分比 (0%-100%)"/>
+                    <TextBlock x:Name="TxtToleranceValue" Text="0%" VerticalAlignment="Center" Margin="4,0,0,0" Width="35" Foreground="#007ACC" FontWeight="Bold"/>
+                </StackPanel>
+                <CheckBox x:Name="ChkExcludeAPath" Content="排除 A 路径" IsChecked="True" Margin="0,0,25,0" VerticalAlignment="Center" ToolTip="当 A 为 B 的子文件夹时，在 B 的扫描结果中自动排除 A 路径及其子目录下的文件自身"/>
             </WrapPanel>
         </GroupBox>
 

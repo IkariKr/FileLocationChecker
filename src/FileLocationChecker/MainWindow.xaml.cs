@@ -78,6 +78,18 @@ namespace FileLocationChecker
         }
 
         /// <summary>
+        /// 容差滑块数值改变事件 handler
+        /// Size tolerance slider value changed event handler
+        /// </summary>
+        private void SldSizeTolerance_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (TxtToleranceValue != null)
+            {
+                TxtToleranceValue.Text = $"{(int)e.NewValue}%";
+            }
+        }
+
+        /// <summary>
         /// 点击“开始查找”按钮触发比对流程
         /// Click 'Start' button to initiate comparison workflow
         /// </summary>
@@ -122,6 +134,7 @@ namespace FileLocationChecker
                 RecursiveA = ChkRecursiveA.IsChecked == true,
                 CheckFileName = checkName,
                 CheckFileSize = checkSize,
+                SizeTolerancePercent = SldSizeTolerance.Value,
                 ExcludeAPath = ChkExcludeAPath.IsChecked == true
             };
 

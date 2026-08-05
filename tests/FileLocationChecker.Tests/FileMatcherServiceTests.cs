@@ -222,5 +222,48 @@ namespace FileLocationChecker.Tests
             Assert.Equal(MatchStatus.MultipleMatches, results2[0].Status);
             Assert.Equal(2, results2[0].MatchCount);
         }
+
+        [Fact]
+        public async Task MatchFilesAsync_ShouldRespectSizeTolerancePercent()
+        {
+            // Arrange: file A is 131 bytes, file B is 129 bytes (diff ~1.5%)
+            string fileA = Path.Combine(_folderA, "doc.txt");
+            string fileB = Path.Combine(_folderB, "doc.txt");
+
+            string textA = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789\n\n";
+            string textB = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
+
+            File.WriteAllText(fileA, textA);
+            File.WriteAllText(fileB, textB);
+
+            // 0% 容差：应该无法匹配
+            var optionsZeroTol = new MatchOptions
+            {
+                FolderA = _folderA,
+                FolderB = _folderB,
+                CheckFileName = true,
+                CheckFileSize = true,
+                SizeTolerancePercent = 0
+            };
+
+            var results1 = await _service.MatchFilesAsync(optionsZeroTol);
+            Assert.Single(results1);
+            Assert.Equal(MatchStatus.NotFound, results1[0].Status);
+
+            // 3% 容差 (允许 1.5% 误差)：应该匹配成功
+            var options3PercentTol = new MatchOptions
+            {
+                FolderA = _folderA,
+                FolderB = _folderB,
+                CheckFileName = true,
+                CheckFileSize = true,
+                SizeTolerancePercent = 3.0
+            };
+
+            var results2 = await _service.MatchFilesAsync(options3PercentTol);
+            Assert.Single(results2);
+            Assert.Equal(MatchStatus.Found, results2[0].Status);
+            Assert.Equal(fileB, results2[0].TargetPath);
+        }
     }
 }
