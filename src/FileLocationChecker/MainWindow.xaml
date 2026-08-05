@@ -78,6 +78,8 @@
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu>
+                    <MenuItem Header="比较差异 (A 与 B 文本对比)" Click="MenuCompareDiff_Click"/>
+                    <Separator/>
                     <MenuItem Header="打开文件夹 A 所在位置" Click="MenuOpenFolderA_Click"/>
                     <MenuItem Header="打开文件夹 B 对应位置" Click="MenuOpenFolderB_Click"/>
                     <MenuItem Header="复制文件夹 B 路径" Click="MenuCopyTargetPath_Click"/>

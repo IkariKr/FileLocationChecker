@@ -227,6 +227,39 @@ namespace FileLocationChecker
             }
         }
 
+        private void MenuCompareDiff_Click(object sender, RoutedEventArgs e)
+        {
+            if (DgResults.SelectedItem is FileMatchResult selected)
+            {
+                if (string.IsNullOrEmpty(selected.SourcePath) || !File.Exists(selected.SourcePath))
+                {
+                    MessageBox.Show(this, "源文件 A 不存在，无法进行内容对比！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(selected.TargetPath))
+                {
+                    MessageBox.Show(this, "未在目标文件夹 B 中找到匹配的文件，无法进行内容对比！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // 若有多重匹配，获取第一个目标文件路径
+                string targetPath = selected.TargetPath.Split(';')[0].Trim();
+
+                if (!File.Exists(targetPath))
+                {
+                    MessageBox.Show(this, $"目标文件 B 不存在或无效: {targetPath}", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var diffWindow = new DiffViewerWindow(selected.SourcePath, targetPath)
+                {
+                    Owner = this
+                };
+                diffWindow.ShowDialog();
+            }
+        }
+
         private void MenuOpenFolderB_Click(object sender, RoutedEventArgs e)
         {
             OpenSelectedTargetFolder();
