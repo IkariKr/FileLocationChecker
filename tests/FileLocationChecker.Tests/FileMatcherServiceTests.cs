@@ -267,5 +267,35 @@ namespace FileLocationChecker.Tests
             Assert.Equal(MatchStatus.Found, results2[0].Status);
             Assert.Equal(fileB, results2[0].TargetPath);
         }
+
+        [Fact]
+        public async Task MatchFilesAsync_ShouldFlagMissingResources_ForBothFolderAAndFolderB()
+        {
+            // Arrange: file A and file B are markdown files referencing missing resources
+            string fileA = Path.Combine(_folderA, "note.md");
+            string fileB = Path.Combine(_folderB, "note.md");
+
+            File.WriteAllText(fileA, "![MissingInA](missing_in_a.png)");
+            File.WriteAllText(fileB, "![MissingInB](missing_in_b.png)");
+
+            var options = new MatchOptions
+            {
+                FolderA = _folderA,
+                FolderB = _folderB,
+                CheckFileName = true,
+                CheckFileSize = false,
+                CheckMdResources = true
+            };
+
+            // Act
+            var results = await _service.MatchFilesAsync(options);
+
+            // Assert
+            Assert.Single(results);
+            Assert.True(results[0].HasMissingResourcesA);
+            Assert.True(results[0].HasMissingResourcesB);
+            Assert.Contains("missing_in_a.png", results[0].MissingResourcesTextA);
+            Assert.Contains("missing_in_b.png", results[0].MissingResourcesTextB);
+        }
     }
 }

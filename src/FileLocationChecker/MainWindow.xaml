@@ -82,10 +82,10 @@
                                     <Style TargetType="TextBlock">
                                         <Setter Property="ToolTip" Value="{Binding TargetPath}"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasMissingResources}" Value="True">
+                                            <DataTrigger Binding="{Binding HasMissingResourcesB}" Value="True">
                                                 <Setter Property="Foreground" Value="#E53935"/>
                                                 <Setter Property="FontWeight" Value="SemiBold"/>
-                                                <Setter Property="ToolTip" Value="{Binding MissingResourcesText}"/>
+                                                <Setter Property="ToolTip" Value="{Binding MissingResourcesTextB}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -94,7 +94,26 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="文件夹 A 完整路径 (SourcePath)" Binding="{Binding SourcePath}" Width="250"/>
+                <DataGridTemplateColumn Header="文件夹 A 完整路径 (SourcePath)" Width="250">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding SourcePath}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="4,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="ToolTip" Value="{Binding SourcePath}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasMissingResourcesA}" Value="True">
+                                                <Setter Property="Foreground" Value="#E53935"/>
+                                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                                <Setter Property="ToolTip" Value="{Binding MissingResourcesTextA}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu>

@@ -139,16 +139,48 @@ namespace FileLocationChecker.Models
         public string Message { get; set; } = string.Empty;
 
         /// <summary>
-        /// 是否包含缺失引用的资源
-        /// Whether there are missing referenced resources
+        /// 源文件 A 是否包含缺失引用的资源
+        /// Whether File A has missing referenced resources
         /// </summary>
-        public bool HasMissingResources { get; set; }
+        public bool HasMissingResourcesA { get; set; }
 
         /// <summary>
-        /// 缺失资源的提示文本信息 (用于 ToolTip)
-        /// ToolTip message text for missing resources
+        /// 源文件 A 缺失资源的提示文本信息 (用于 ToolTip)
+        /// ToolTip message text for missing resources in File A
         /// </summary>
-        public string MissingResourcesText { get; set; } = string.Empty;
+        public string MissingResourcesTextA { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 目标文件 B 是否包含缺失引用的资源
+        /// Whether File B has missing referenced resources
+        /// </summary>
+        public bool HasMissingResourcesB { get; set; }
+
+        /// <summary>
+        /// 目标文件 B 缺失资源的提示文本信息 (用于 ToolTip)
+        /// ToolTip message text for missing resources in File B
+        /// </summary>
+        public string MissingResourcesTextB { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 兼容旧属性：是否有缺失资源
+        /// Legacy property alias
+        /// </summary>
+        public bool HasMissingResources
+        {
+            get => HasMissingResourcesA || HasMissingResourcesB;
+            set => HasMissingResourcesB = value;
+        }
+
+        /// <summary>
+        /// 兼容旧属性：缺失资源提示文本
+        /// Legacy property alias
+        /// </summary>
+        public string MissingResourcesText
+        {
+            get => string.IsNullOrEmpty(MissingResourcesTextB) ? MissingResourcesTextA : MissingResourcesTextB;
+            set => MissingResourcesTextB = value;
+        }
     }
 
     /// <summary>

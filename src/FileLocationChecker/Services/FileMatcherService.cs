@@ -262,6 +262,18 @@ namespace FileLocationChecker.Services
                 result.FileSizeA = fileInfoA.Length;
                 result.FormattedSizeA = FormatBytes(fileInfoA.Length);
 
+                // 检查文件夹 A 中 Markdown 文件引用的资源有效性
+                if (options.CheckMdResources && File.Exists(fileAPath))
+                {
+                    var missingA = MdResourceCheckerService.CheckMissingResources(fileAPath, options.FolderA);
+                    if (missingA.Count > 0)
+                    {
+                        result.HasMissingResourcesA = true;
+                        result.MissingResourcesTextA = $"⚠️ 文件夹 A 中的 Markdown 缺失引用的资源 ({missingA.Count} 个):\n" +
+                                                      string.Join("\n", missingA.Select(m => $"  • {m}"));
+                    }
+                }
+
                 string searchKey = GenerateIndexKey(fileAPath, options);
 
                 if (indexB.TryGetValue(searchKey, out var matchedPaths) && matchedPaths.Count > 0)
@@ -328,21 +340,21 @@ namespace FileLocationChecker.Services
                         result.FormattedSizeB = "-";
                     }
 
-                    // 检查 Markdown 文件引用的资源有效性
+                    // 检查文件夹 B 中 Markdown 文件引用的资源有效性
                     if (candidatePaths.Count > 0 && options.CheckMdResources)
                     {
-                        var allMissing = new List<string>();
+                        var allMissingB = new List<string>();
                         foreach (var path in candidatePaths)
                         {
                             var missing = MdResourceCheckerService.CheckMissingResources(path, options.FolderB);
-                            allMissing.AddRange(missing);
+                            allMissingB.AddRange(missing);
                         }
 
-                        if (allMissing.Count > 0)
+                        if (allMissingB.Count > 0)
                         {
-                            var distinctMissing = allMissing.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-                            result.HasMissingResources = true;
-                            result.MissingResourcesText = $"⚠️ Markdown 缺失引用的资源 ({distinctMissing.Count} 个):\n" +
+                            var distinctMissing = allMissingB.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+                            result.HasMissingResourcesB = true;
+                            result.MissingResourcesTextB = $"⚠️ 文件夹 B 中的 Markdown 缺失引用的资源 ({distinctMissing.Count} 个):\n" +
                                                           string.Join("\n", distinctMissing.Select(m => $"  • {m}"));
                         }
                     }
