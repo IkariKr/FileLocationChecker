@@ -169,5 +169,58 @@ namespace FileLocationChecker.Tests
             Assert.Single(results2);
             Assert.Equal(MatchStatus.Found, results2[0].Status);
         }
+
+        [Fact]
+        public async Task MatchFilesAsync_ShouldExcludeSelf_WhenAIsSubfolderOfBAndExcludeAPathIsTrue()
+        {
+            // Arrange: B 包含 A，且 A 中有一个文件 test.txt。B 另外还有一个 other/test.txt。
+            // Arrange: B contains A, and A contains test.txt. B also contains another test.txt in other/.
+            string subFolderA = Path.Combine(_folderB, "FolderA");
+            Directory.CreateDirectory(subFolderA);
+            string otherFolderB = Path.Combine(_folderB, "OtherDir");
+            Directory.CreateDirectory(otherFolderB);
+
+            string fileInA = Path.Combine(subFolderA, "sample.txt");
+            string fileInB1 = Path.Combine(subFolderA, "sample.txt"); // 属于 A 自身的路径
+            string fileInB2 = Path.Combine(otherFolderB, "sample.txt"); // 属于 B 其他地方的匹配项
+
+            File.WriteAllText(fileInA, "test data");
+            File.WriteAllText(fileInB2, "test data");
+
+            // 情况 1: 勾选 ExcludeAPath = true，应该排除 fileInB1 (A 自身)，仅找到 fileInB2
+            var optionsWithExclude = new MatchOptions
+            {
+                FolderA = subFolderA,
+                FolderB = _folderB,
+                RecursiveA = false,
+                CheckFileName = true,
+                CheckFileSize = true,
+                ExcludeAPath = true
+            };
+
+            // Act
+            var results1 = await _service.MatchFilesAsync(optionsWithExclude);
+
+            // Assert
+            Assert.Single(results1);
+            Assert.Equal(MatchStatus.Found, results1[0].Status);
+            Assert.Equal(fileInB2, results1[0].TargetPath);
+
+            // 情况 2: 取消勾选 ExcludeAPath = false，会同时匹配到 fileInB1 和 fileInB2 -> MultipleMatches
+            var optionsWithoutExclude = new MatchOptions
+            {
+                FolderA = subFolderA,
+                FolderB = _folderB,
+                RecursiveA = false,
+                CheckFileName = true,
+                CheckFileSize = true,
+                ExcludeAPath = false
+            };
+
+            var results2 = await _service.MatchFilesAsync(optionsWithoutExclude);
+            Assert.Single(results2);
+            Assert.Equal(MatchStatus.MultipleMatches, results2[0].Status);
+            Assert.Equal(2, results2[0].MatchCount);
+        }
     }
 }

@@ -47,6 +47,7 @@
                 <CheckBox x:Name="ChkRecursiveA" Content="递归检查 A" IsChecked="False" Margin="0,0,30,0" VerticalAlignment="Center" ToolTip="勾选后将递归搜索文件夹 A 的所有子目录"/>
                 <CheckBox x:Name="ChkCheckFileName" Content="检查文件名" IsChecked="True" Margin="0,0,30,0" VerticalAlignment="Center" ToolTip="匹配文件夹 A 与 B 中的文件名是否相同"/>
                 <CheckBox x:Name="ChkCheckFileSize" Content="检查文件大小" IsChecked="True" Margin="0,0,30,0" VerticalAlignment="Center" ToolTip="匹配文件夹 A 与 B 中的文件字节大小是否完全一致"/>
+                <CheckBox x:Name="ChkExcludeAPath" Content="排除 A 路径" IsChecked="True" Margin="0,0,30,0" VerticalAlignment="Center" ToolTip="当 A 为 B 的子文件夹时，在 B 的扫描结果中自动排除 A 路径及其子目录下的文件自身"/>
             </WrapPanel>
         </GroupBox>
 

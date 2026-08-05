@@ -258,16 +258,29 @@ namespace FileLocationChecker.Services
 
                 if (indexB.TryGetValue(searchKey, out var matchedPaths) && matchedPaths.Count > 0)
                 {
-                    result.MatchCount = matchedPaths.Count;
-                    result.TargetPath = string.Join("; ", matchedPaths);
+                    List<string> candidatePaths = matchedPaths;
+                    if (options.ExcludeAPath)
+                    {
+                        candidatePaths = matchedPaths
+                            .Where(path => !IsSameOrSubPath(path, options.FolderA))
+                            .ToList();
+                    }
 
-                    if (matchedPaths.Count == 1)
+                    result.MatchCount = candidatePaths.Count;
+                    result.TargetPath = string.Join("; ", candidatePaths);
+
+                    if (candidatePaths.Count == 1)
                     {
                         result.Status = MatchStatus.Found;
                     }
-                    else
+                    else if (candidatePaths.Count > 1)
                     {
                         result.Status = MatchStatus.MultipleMatches;
+                    }
+                    else
+                    {
+                        result.Status = MatchStatus.NotFound;
+                        result.TargetPath = string.Empty;
                     }
                 }
                 else
@@ -283,6 +296,32 @@ namespace FileLocationChecker.Services
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// 检查目标路径是否与基准文件夹相同或是其子路径
+        /// Check if target path is identical to or a sub-path of the base folder
+        /// </summary>
+        private static bool IsSameOrSubPath(string targetPath, string baseFolder)
+        {
+            if (string.IsNullOrEmpty(targetPath) || string.IsNullOrEmpty(baseFolder))
+                return false;
+
+            try
+            {
+                string fullTarget = Path.GetFullPath(targetPath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                string fullBase = Path.GetFullPath(baseFolder).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+                if (string.Equals(fullTarget, fullBase, StringComparison.OrdinalIgnoreCase))
+                    return true;
+
+                return fullTarget.StartsWith(fullBase + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) ||
+                       fullTarget.StartsWith(fullBase + Path.AltDirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>

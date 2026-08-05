@@ -142,5 +142,11 @@ namespace FileLocationChecker.Models
         /// Whether to match file size (Default: true)
         /// </summary>
         public bool CheckFileSize { get; set; } = true;
+
+        /// <summary>
+        /// 是否排除文件夹 A 自身的路径 (当 A 为 B 的子文件夹时，默认 true)
+        /// Whether to exclude Folder A's own path when A is a subfolder of B (Default: true)
+        /// </summary>
+        public bool ExcludeAPath { get; set; } = true;
     }
 }

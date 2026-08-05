@@ -121,7 +121,8 @@ namespace FileLocationChecker
                 FolderB = folderB,
                 RecursiveA = ChkRecursiveA.IsChecked == true,
                 CheckFileName = checkName,
-                CheckFileSize = checkSize
+                CheckFileSize = checkSize,
+                ExcludeAPath = ChkExcludeAPath.IsChecked == true
             };
 
             _cts = new CancellationTokenSource();
